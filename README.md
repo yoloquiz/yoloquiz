@@ -2,5 +2,5 @@
 
 ## Requirements
 
-> Node v15.x
-> Yarn v1.2x
+- Node v15.x
+- Yarn v1.2x
