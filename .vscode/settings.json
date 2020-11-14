@@ -8,6 +8,15 @@
     "html",
     "vue"
   ],
+  "eslint.workingDirectories": [
+    {
+      "directory": "packages/app",
+      "changeProcessCWD": true
+    },      {
+      "directory": "packages/api",
+      "changeProcessCWD": true
+    },
+  ],
   "vetur.validation.template": false,
   "editor.formatOnPaste": true,
   "editor.formatOnType": true,
