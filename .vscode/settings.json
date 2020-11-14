@@ -12,5 +12,6 @@
   "editor.formatOnPaste": true,
   "editor.formatOnType": true,
   "editor.formatOnSave": false,
-  "prettier.requireConfig": true
+  "prettier.requireConfig": true,
+  "editor.tabSize": 2
 }

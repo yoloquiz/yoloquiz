@@ -25,6 +25,11 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     // Disallow Early Use except functions and variables in upper scopes
     'no-use-before-define': ['error', { functions: false, variables: false }],
+    "import/resolver": {
+        "node": {
+            "extensions": [".js",".jsx"]
+        }
+    }
   },
   overrides: [
     {
