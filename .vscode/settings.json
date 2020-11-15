@@ -22,5 +22,6 @@
   "editor.formatOnType": true,
   "editor.formatOnSave": false,
   "prettier.requireConfig": true,
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "javascript.preferences.importModuleSpecifierEnding": "js",
 }
