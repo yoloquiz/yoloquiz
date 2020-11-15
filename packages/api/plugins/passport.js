@@ -1,20 +1,11 @@
 import fastifyPassportModule from 'fastify-passport';
-import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-import fs from 'fs';
-
-import * as usersService from '../modules/users/users.service.js';
+import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import config from '../config/index.js';
+import * as usersService from '../modules/users/users.service.js';
 
 const fastifyPassport = fastifyPassportModule.default;
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
 export default async function (app) {
-  app.register(fastifyPassport.initialize());
-  app.register(fastifyPassport.secureSession());
-
   const jwtStrategyOptions = {
     secretOrKey: config.secret,
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

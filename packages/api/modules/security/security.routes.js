@@ -1,5 +1,6 @@
 import * as securityService from './security.service.js';
 import * as schema from './security.schema.js';
+import * as usersService from '../users/users.service.js';
 
 export function loginRoute() {
   return {
@@ -13,17 +14,13 @@ export function loginRoute() {
           password,
         } = request.body;
 
-        const user = await securityService.getUserFromAuthPayload({ email, password });
+        const user = await usersService.findOneByEmail({ email });
 
-        if (!user) {
-          return reply.unauthorized();
-        }
+        await securityService.isUserPasswordValid({ user, password });
 
         const token = securityService.getAccessToken({ user });
 
-        return {
-          token,
-        };
+        return { token };
       } catch (error) {
         return reply.unauthorized();
       }
@@ -44,15 +41,20 @@ export function registerRoute(app) {
         lastName,
       } = request.body;
 
-      const user = await User.findOne({
+      const user = await usersService.findOneByEmail({
         email,
       });
 
-      if (!user) {
-        return reply.badRequest();
+      if (user) {
+        return reply.badRequest('Email is already taken. Please try to login instead.');
       }
 
-      const token = securityService.getAccessToken({ user });
+      const token = await securityService.createUserAndGetAccessToken({
+        email,
+        password,
+        firstName,
+        lastName,
+      });
 
       return { token };
     },
