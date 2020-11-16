@@ -37,3 +37,9 @@ export async function createUserAndGetAccessToken({
   });
   return getAccessToken({ user });
 }
+
+export async function authenticateUserFromToken({ token }) {
+  const { userId } = jwt.verify(token, config.secret);
+
+  return usersService.findOneById({ userId });
+}

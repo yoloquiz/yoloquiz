@@ -2,15 +2,20 @@ import fastify from 'fastify';
 import fastifyCors from 'fastify-cors';
 import fastifySensible from 'fastify-sensible';
 import multer from 'fastify-multer';
+import fastifyPassportModule from 'fastify-passport';
+import fastifySecureSession from 'fastify-secure-session';
+import fastifyWebsocket from 'fastify-websocket';
+
 import config from './config/index.js';
 import mongoose from './plugins/mongoose.js';
 import passport from './plugins/passport.js';
 import routes from './routes/index.js';
 
-import fastifyPassportModule from 'fastify-passport';
-import fastifySecureSession from 'fastify-secure-session';
-
 const fastifyPassport = fastifyPassportModule.default;
+
+function websocketHandler(conn) {
+  conn.pipe(conn);
+}
 
 async function start() {
   const app = fastify({
@@ -21,7 +26,11 @@ async function start() {
     /**
      * Community plugins
      */
-    app.register(fastifySecureSession, { key: Array(32) });
+    app.register(fastifyWebsocket, {
+      handle: websocketHandler,
+      options: { maxPayload: 1048576 }
+    });
+    app.register(fastifySecureSession, { key: config.secret });
     app.register(fastifyPassport.initialize());
     app.register(fastifyPassport.secureSession());
     app.register(passport);

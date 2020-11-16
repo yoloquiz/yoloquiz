@@ -24,4 +24,5 @@
   "prettier.requireConfig": true,
   "editor.tabSize": 2,
   "javascript.preferences.importModuleSpecifierEnding": "js",
+  "eslint.codeActionsOnSave.mode": "all"
 }

@@ -5191,6 +5191,15 @@ fastify-warning@^0.2.0:
   resolved "https://registry.yarnpkg.com/fastify-warning/-/fastify-warning-0.2.0.tgz#e717776026a4493dc9a2befa44db6d17f618008f"
   integrity sha512-s1EQguBw/9qtc1p/WTY4eq9WMRIACkj+HTcOIK1in4MV5aFaQC9ZCIt0dJ7pr5bIf4lPpHvAtP2ywpTNgs7hqw==
 
+fastify-websocket@^2.0.11:
+  version "2.0.11"
+  resolved "https://registry.yarnpkg.com/fastify-websocket/-/fastify-websocket-2.0.11.tgz#377d4ac335e1f592057bab522d7f0614955f792a"
+  integrity sha512-0K9S7DJAtWdohsjFpGPxZ7SzPUi5aqeExYWoU9kNlTqIos8d5beeBYY/9s/1RhelZ4HJ+PDHgQ5LV4IGSzInTA==
+  dependencies:
+    fastify-plugin "^3.0.0"
+    find-my-way "^3.0.4"
+    ws "^7.3.1"
+
 fastify@^3.8.0:
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/fastify/-/fastify-3.8.0.tgz#455bfa70394322247050c330d0e52532b349662d"
@@ -5358,7 +5367,7 @@ find-cache-dir@^3.0.0, find-cache-dir@^3.3.1:
     make-dir "^3.0.2"
     pkg-dir "^4.1.0"
 
-find-my-way@^3.0.5:
+find-my-way@^3.0.4, find-my-way@^3.0.5:
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/find-my-way/-/find-my-way-3.0.5.tgz#f71c5ef1b4865401e1b97ba428121a8f55439eec"
   integrity sha512-FweGg0cv1sBX8z7WhvBX5B5AECW4Zdh/NiB38Oa0qwSNIyPgRBCl/YjxuZn/rz38E/MMBHeVKJ22i7W3c626Gg==
@@ -12480,7 +12489,7 @@ ws@^6.0.0, ws@^6.2.1:
   dependencies:
     async-limiter "~1.0.0"
 
-ws@^7.0.0:
+ws@^7.0.0, ws@^7.3.1:
   version "7.4.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.0.tgz#a5dd76a24197940d4a8bb9e0e152bb4503764da7"
   integrity sha512-kyFwXuV/5ymf+IXhS6f0+eAFvydbaBW3zjpT6hUdAh/hbVjTIB5EHBGi0bPoCLSK2wcuz3BrEkB9LrYv1Nm4NQ==

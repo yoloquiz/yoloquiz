@@ -17,6 +17,7 @@
     "fastify-passport": "^0.1.0",
     "fastify-sensible": "^3.0.1",
     "fastify-static": "^3.2.0",
+    "fastify-websocket": "^2.0.11",
     "fluent-schema": "^1.0.5",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
