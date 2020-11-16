@@ -17,7 +17,7 @@ const answersSchema = new Schema({
   },
 });
 
-const questionsSchema = new Schema(
+export const questionsSchema = new Schema(
   {
     question: {
       type: String,

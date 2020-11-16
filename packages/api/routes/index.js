@@ -17,6 +17,7 @@ async function privateRoutes(app) {
     'preValidation',
     fastifyPassport.authorize('jwt'),
   );
+
   app.register(quizzesRoutes, { prefix: '/quizzes' });
   app.register(usersRoutes, { prefix: '/users' });
 }
