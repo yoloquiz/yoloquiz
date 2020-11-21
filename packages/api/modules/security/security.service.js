@@ -19,7 +19,7 @@ export async function isUserPasswordValid({ user, password }) {
 }
 
 export function getAccessToken({ user }) {
-  return jwt.sign({ userId: user._id }, config.secret, { expiresIn: '1M' });
+  return jwt.sign({ userId: user._id }, config.secret, { expiresIn: '30 days' });
 }
 
 export async function createUserAndGetAccessToken({
@@ -29,12 +29,13 @@ export async function createUserAndGetAccessToken({
   lastName,
 }) {
   const hashedPassword = await bcrypt.hash(password, 12);
-  const user = await usersService.createUser({
+  const user = await usersService.createOneUser({
     email,
     password: hashedPassword,
     firstName,
     lastName,
   });
+
   return getAccessToken({ user });
 }
 

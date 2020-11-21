@@ -1,6 +1,6 @@
 import fastifyPassportModule from 'fastify-passport';
 import securityRoutes from '../modules/security/security.routes.js';
-import gamesRoutes from '../modules/game/games.routes.js';
+import gamesRoutes from '../modules/games/games.routes.js';
 import usersRoutes from '../modules/users/users.routes.js';
 
 const fastifyPassport = fastifyPassportModule.default;
@@ -18,7 +18,7 @@ async function privateRoutes(app) {
     fastifyPassport.authorize('jwt'),
   );
 
-  app.register(gamesRoutes, { prefix: '/rooms' });
+  app.register(gamesRoutes, { prefix: '/games' });
   app.register(usersRoutes, { prefix: '/users' });
 }
 

@@ -8,7 +8,7 @@ export function findOneById({ userId }) {
   return usersModel.findOne({ _id: userId }).select('-password');
 }
 
-export function createUser({ email, password, firstName, lastName }) {
+export function createOneUser({ email, password, firstName, lastName }) {
   return usersModel.create({
     email,
     password,

@@ -14,14 +14,14 @@ export function loginRoute() {
           password,
         } = request.body;
 
-        const user = await usersService.findOneByEmail({ email });
+        const user = await usersService.findOneByEmail({ email }).select('password');
 
         await securityService.isUserPasswordValid({ user, password });
 
         const token = securityService.getAccessToken({ user });
 
         return { token };
-      } catch (error) {
+      } catch (err) {
         return reply.unauthorized();
       }
     },
