@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import url from 'url';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
-import StateMachine from 'javascript-state-machine';
+import { StateMachine } from '../../state-machine/index.js';
 
 import * as securityService from '../security/security.service.js';
 import { onIdleState } from './idle.state.js';
+import { onStartTransition } from './start.transition.js';
 
 const gameRooms = {};
 
@@ -38,33 +39,36 @@ const gameRooms = {};
  * State transitions methods
  */
 
-async function onStartTransition() {
-  const timeout = 10 * 1000;
+// async function onStartTransition() {
+//   const timeout = 10 * 1000;
 
-  this.sendToEveryone({
-    message: {
-      name: 'starting',
-      timeout: timeout,
-    },
-  });
+//   this.sendToEveryone({
+//     message: {
+//       name: 'starting',
+//       timeout: timeout,
+//     },
+//   });
 
-  const userCancelListener = async ({ userId }) => {
-    if (!this.isOwner({ userId })) return;
+//   const userCancelListener = async ({ userId }) => {
+//     if (!this.isOwner({ userId })) return;
 
-    this.state.transition.cancel();
-    this.removeEventListener('user-cancel', userCancelListener);
-    this.removeEventListener('user-disconnect', userCancelListener);
-  }
+//     this.state.transition.cancel();
+//     this.removeEventListener('user-cancel', userCancelListener);
+//     this.removeEventListener('user-disconnect', userCancelListener);
+//   }
 
-  this.on('user-cancel', userCancelListener);
-  this.on('user-disconnect', userCancelListener);
+//   this.on('user-cancel', userCancelListener);
+//   this.on('user-disconnect', userCancelListener);
 
-  await waitFor(timeout);
-}
+//   await waitFor(timeout);
+// }
 
 function onStartedState(context) {
   console.log('COUCOU')
 }
+
+// IDLE : on attend que l'owner lance la game
+// TRANSITION IDLE => START
 
 class GameRoom {
   constructor({ owner, logger }) {
@@ -74,31 +78,54 @@ class GameRoom {
     };
 
     this.logger = logger;
-    this.owner = owner;
-    this._state = new StateMachine({
+    this.state = new StateMachine({
       init: 'idle',
       transitions: [
         { name: 'start', from: 'idle', to: 'started' },
       ],
       methods: {
-        onIdle: () => onIdleState({
-          $: this.$,
-          sendToEveryone: this.sendToEveryone,
-          start: () => this.state.start(),
+        onEnterState: ({ state }) => {
+          logger.info({
+            message: '[state] applying new state',
+            state,
+          });
+        },
+        // onAfterTransition: ({ transition, from, to }) => {
+        //   logger.info({
+        //     message: '[transition] after transition',
+        //     transition,
+        //     from,
+        //     to,
+        //   });
+        // },
+        onEnterTransition: ({ transition }) => {
+          logger.info({
+            message: '[transition] executing transition',
+            transition,
+          });
+        },
+        // Waiting for owner to start the game
+        onIdleState: () => onIdleState({
+          messages$: this.$.messages$,
+          ownerUserId: owner.userId,
+          start: () => {
+            logger.info({ message: 'game started' });
+            this.state.run({ transition: 'start' });
+          },
         }),
-        onStarted: () => onStartedState(this),
+        // Timeout of X seconds or awaiting all players ready status
+        onStartTransition: () => onStartTransition({
+          messages$: this.$.messages$,
+          players$: this.$.players$,
+          ownerUserId: owner.userId,
+          sendToEveryone: this.sendToEveryone.bind(this),
+          onCancel: () => this.state.run('start'),
+          timeout: 10 * 1000,
+        }),
       },
     });
-    
-
-    this.users = {
-      [owner.userId]: owner,
-    };
-
-  }
-
-  get state() {
-    return this._state;
+    this.owner = owner;
+    this.users = {};
   }
 
   /**
@@ -115,7 +142,7 @@ class GameRoom {
   handleMessage({ userId, message }) {
     console.log('handleMessage', { userId, message });
     try {
-      const { name, payload } = JSON.parse(message);
+      const { name, payload = {} } = JSON.parse(message);
 
       this.$.messages$.next({ userId, name, payload });
     } catch (err) {
@@ -150,6 +177,7 @@ class GameRoom {
     this.users[userId] = {
       userId,
       socket,
+      isOwner: userId === this.owner.userId,
     };
 
     this.$.players$.next(Object.values(this.users));
@@ -180,9 +208,8 @@ function createGameRoomRoute(app) {
   return {
     method: 'POST',
     url: '/',
-    handler: (req, reply) => {
-      const { userId } = req;
-      const roomId = `room${_.random(0, 1000)}`;
+    handler: ({ account: { userId } }, reply) => {
+      const roomId = `room`;
 
       const logger = app.log.child({
         roomId,
@@ -222,7 +249,7 @@ function gamesRoomRoute(app) {
         const { token } = url.parse(request.url, true).query;
 
         const user = await securityService.authenticateUserFromToken({ token });
-        const { _id: userId } = user;
+        const userId = user._id.toString();
 
         const gameRoom = gameRooms[roomId];
         if (!gameRoom) {
