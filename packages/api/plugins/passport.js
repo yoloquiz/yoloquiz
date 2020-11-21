@@ -5,7 +5,7 @@ import * as usersService from '../modules/users/users.service.js';
 
 const fastifyPassport = fastifyPassportModule.default;
 
-export default async function (app) {
+export default async function () {
   const jwtStrategyOptions = {
     secretOrKey: config.secret,
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -20,6 +20,8 @@ export default async function (app) {
       return done(null, false);
     }
 
-    return done(null, user);
+    return done(null, {
+      userId,
+    });
   }));
 }
