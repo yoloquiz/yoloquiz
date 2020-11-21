@@ -12,7 +12,8 @@
     {
       "directory": "packages/app",
       "changeProcessCWD": true
-    },      {
+    },
+    {
       "directory": "packages/api",
       "changeProcessCWD": true
     },
