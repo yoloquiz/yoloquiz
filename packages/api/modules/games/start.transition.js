@@ -20,10 +20,9 @@ export async function onStartTransition(context) {
           message: createGameCancelMessage(),
         })),
         map(() => ({ isCanceled: true })),
-        // catchError((err) => throwError(err))
       ),
-    allPlayersReady$.pipe(map(() => ({ isCanceled: false }))),
-    timer$.pipe(map(() => ({ isCanceled: false }))),
+    allPlayersReady$,
+    timer$,
   );
 
   playerReadyMessage$
@@ -38,7 +37,7 @@ export async function onStartTransition(context) {
       });
     });
 
-  const { isCanceled } = await allPlayersReadyOrTimeout$.toPromise();
+  const { isCanceled = false } = await allPlayersReadyOrTimeout$.toPromise();
 
-  if (isCanceled) throw new Error('Padbol');
+  if (isCanceled) throw new Error('Game launch canceled');
 }

@@ -1,6 +1,3 @@
-import { race, timer } from 'rxjs';
-import { takeUntil } from 'rxjs/operators/index.js';
-
 import { getGameStartMessage$ } from './idle.functions.js';
 
 export function onIdleState(context) {

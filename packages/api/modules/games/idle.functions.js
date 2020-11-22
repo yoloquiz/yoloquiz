@@ -3,10 +3,6 @@ import { withLatestFrom, scan, take, filter, map, tap } from 'rxjs/operators/ind
 
 import { messageType } from './messages.constants.js';
 
-// STATE IDLE
-// => Game start
-// TRANSITION IDLE - START
-
 export const createPlayerReadyMessage = ({ playerId, isReady }) => ({
   name: 'player-ready',
   payload: {
