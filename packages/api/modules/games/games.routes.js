@@ -9,67 +9,6 @@ import { onStartTransition } from './start.transition.js';
 
 const gameRooms = {};
 
-// INITIALISATION DE LA ROOM
-// <--B { event: 'joining', user: { ... payload } }
-// <--B { event: 'leaving', userId: '...' }
-
-// const ws = new WebSocket('ws://lol/rooms/FUGYUEIFAO/game');
-// 5fb2b20f0e087b08cab20101
-
-// SESSION DE JEU
-// --> { event: 'launch' }
-// <-- { event: 'game-starting', timeout: 30 * 1000 },
-// --> { event: 'ready' }
-// --> { event: 'ready' }
-// --> { event: 'ready' }
-// <--B { event: 'game-started' }
-// --> { event: 'round-starting', timeout: 3 * 1000 },
-// --> { event: 'round-started', time: 30000 }
-// <--B { event: 'question', payload: { avaibleAnswers: [] } }
-// <-- { event: 'answer', payload: { from: 'userB' } }
-// --> { event: 'anwser', payload: {...} }
-// <--B { event: 'round-finished', payload: { ...SCORES }, timeout: 30 * 1000 }
-// <-- { event: 'round-starting', timeout: 3 * 1000 },
-// --> ...
-// <--B { event: 'game-finished' }
-// Affiche les scores
-
-
-/**
- * State transitions methods
- */
-
-// async function onStartTransition() {
-//   const timeout = 10 * 1000;
-
-//   this.sendToEveryone({
-//     message: {
-//       name: 'starting',
-//       timeout: timeout,
-//     },
-//   });
-
-//   const userCancelListener = async ({ userId }) => {
-//     if (!this.isOwner({ userId })) return;
-
-//     this.state.transition.cancel();
-//     this.removeEventListener('user-cancel', userCancelListener);
-//     this.removeEventListener('user-disconnect', userCancelListener);
-//   }
-
-//   this.on('user-cancel', userCancelListener);
-//   this.on('user-disconnect', userCancelListener);
-
-//   await waitFor(timeout);
-// }
-
-function onStartedState(context) {
-  console.log('COUCOU')
-}
-
-// IDLE : on attend que l'owner lance la game
-// TRANSITION IDLE => START
-
 class GameRoom {
   constructor({ owner, logger }) {
     this.$ = {
@@ -84,20 +23,14 @@ class GameRoom {
         { name: 'start', from: 'idle', to: 'started' },
       ],
       methods: {
+        // On entering state
         onEnterState: ({ state }) => {
           logger.info({
             message: '[state] applying new state',
             state,
           });
         },
-        // onAfterTransition: ({ transition, from, to }) => {
-        //   logger.info({
-        //     message: '[transition] after transition',
-        //     transition,
-        //     from,
-        //     to,
-        //   });
-        // },
+        // Before a transition is called
         onEnterTransition: ({ transition }) => {
           logger.info({
             message: '[transition] executing transition',

@@ -1,4 +1,4 @@
-import { take, filter, map } from "rxjs/operators/index.js";
+import { take, filter } from "rxjs/operators/index.js";
 
 import { getOwnerMessage$ } from "./idle.functions.js";
 import { messageType } from './messages.constants.js';

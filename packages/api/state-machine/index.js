@@ -1,15 +1,3 @@
-/* {
-  init: 'solid',
-  transitions: [
-      { name: 'melt',     from: 'solid',  to: 'liquid' },
-      { name: 'freeze',   from: 'liquid', to: 'solid'  },
-      { name: 'vaporize', from: 'liquid', to: 'gas'    },
-      { name: 'condense', from: 'gas',    to: 'liquid' }
-  ],
-} */
-
-// Lance la transition
-// Lance le code du state
 import _ from 'lodash';
 
 export class StateMachine {
@@ -22,20 +10,18 @@ export class StateMachine {
   }
 
   async run({ transition }) {
-    console.log('STATE RUN', {transition})
     const transitionConfig = _.find(this.transitions, { name: transition });
     if (!transitionConfig) {
       throw new Error('Transition does not exist!');
     }
 
     if (transitionConfig.from !== this.state) {
-      throw new Error('Peux pas executer');
+      throw new Error('This transition is not available');
     }
 
     try {
       await this.runTransition({ transition });
     } catch (error) {
-      console.log('Transition failed to run', error);
       return this.runState({ state: this.state });
     }
     
@@ -64,7 +50,7 @@ export class StateMachine {
     return this.runMethod({ methodName: transitionMethodName });
   }
   
-  async setState({ transitionConfig }) {
+  setState({ transitionConfig }) {
     this.state = transitionConfig.to;
     return this.runState({ state: this.state });
   }
