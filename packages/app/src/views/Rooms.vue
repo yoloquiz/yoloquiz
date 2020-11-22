@@ -1,5 +1,6 @@
 <template>
   <div class="container mx-auto h-full py-16">
+    <InputText :placeholder="test" />
     <div class="grid md:grid-cols-6 h-full">
       <div class="col-span-4">
         <Quiz :quiz="quiz" />
@@ -10,11 +11,12 @@
 </template>
 
 <script>
+import InputText from '@/components/ui/form/InputText.vue';
 import Quiz from '@/components/quiz/Quiz.vue';
 import Question from '@/components/quiz/Question.vue';
 
 export default {
-  components: { Question, Quiz },
+  components: { Question, Quiz, InputText },
   data: () => ({
     quiz: {
       name: 'Lorem ipsum',

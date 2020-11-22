@@ -4,10 +4,16 @@ module.exports = {
   purge: ['./src/**/*.html', './src/**/*.vue', './src/**/*.jsx'],
   theme: {
     colors: {
-      primary: colors.cyan[700],
-      success: colors.emerald[500],
+      primary: colors.cyan,
+      success: colors.emerald,
+      ...colors,
     },
   },
-  variants: {},
+  variants: {
+    extend: {
+      ringWidth: ['hover', 'active'],
+      opacity: ['disabled'],
+    },
+  },
   plugins: [],
 };
