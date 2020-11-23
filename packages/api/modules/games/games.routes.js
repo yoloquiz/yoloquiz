@@ -26,15 +26,25 @@ class GameRoom {
         // On entering state
         onEnterState: ({ state }) => {
           logger.info({
-            message: '[state] applying new state',
             state,
+          }, '[state] applying new state');
+          this.sendToEveryone({
+            message: {
+              name: 'state-update',
+              payload: { state },
+            }
           });
         },
         // Before a transition is called
         onEnterTransition: ({ transition }) => {
           logger.info({
-            message: '[transition] executing transition',
             transition,
+          }, '[transition] executing transition');
+          this.sendToEveryone({
+            message: {
+              name: 'transition-update',
+              payload: { transition },
+            }
           });
         },
         // Waiting for owner to start the game
@@ -42,7 +52,6 @@ class GameRoom {
           messages$: this.$.messages$,
           ownerUserId: owner.userId,
           start: () => {
-            logger.info({ message: 'game started' });
             this.state.run({ transition: 'start' });
           },
         }),
@@ -73,7 +82,6 @@ class GameRoom {
   }
 
   handleMessage({ userId, message }) {
-    console.log('handleMessage', { userId, message });
     try {
       const { name, payload = {} } = JSON.parse(message);
 
@@ -90,19 +98,23 @@ class GameRoom {
   sendTo({ userId, message }) {
     const socketFromUserId = _.get(this.users, [userId, 'socket']);
 
-    if (!socketFromUserId) return;
-
+    if (!socketFromUserId) {
+      this.logger.warn({ sendTo: userId, message }, 'unable to send');
+      return;
+    }
+    
+    this.logger.info({ sendTo: userId, message });
     socketFromUserId.send(JSON.stringify(message));
   }
 
   sendToEveryone({ message, without = [] }) {
-    _.chain(this.socketsByUserId)
-      .filter((_socket, userId) => without.includes(userId))
+    _(this.socketsByUserId)
+      .pickBy((_socket, userId) => !without.includes(userId))
       .forEach((_socket, userId) => this.sendTo({ userId, message }));
   }
 
   addUser({ userId, socket }) {
-    this.logger.info({ userId, message: 'Adding user to game room' });
+    this.logger.info({ userId }, 'Adding user to game room');
     if (this.users[userId]) {
       throw new Error('User is already in room!');
     };
@@ -115,23 +127,18 @@ class GameRoom {
 
     this.$.players$.next(Object.values(this.users));
 
-    this.sendToEveryone({ message: { name: 'user-joined', payload: { user: { name: 'Léo' } } }, without: [] });
+    this.sendToEveryone({ message: { name: 'user-joined', payload: { userId, pseudo: 'RandomPseudo?' } }, without: [userId] });
 
     socket.on('message', (message) => this.handleMessage({ userId, message }));
 
     socket.on('close', () => {
-      app.log.info({ userId, message: 'User disconnected' });
+      this.logger.info({ userId }, 'User disconnected');
       this.removeUser({ userId });
     });
   }
 
   removeUser({ userId }) {
-    this.users[userId].socket.removeAllEventListeners();
     delete this.users[userId];
-
-    if (this.owner && userId === this.owner.userId) {
-      delete this.owner;
-    }
 
     this.$.players$.next(Object.values(this.users));
   }
@@ -142,7 +149,7 @@ function createGameRoomRoute(app) {
     method: 'POST',
     url: '/',
     handler: ({ account: { userId } }, reply) => {
-      const roomId = `room`;
+      const roomId = _.times(6, () => _.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')).join('');
 
       const logger = app.log.child({
         roomId,
@@ -177,7 +184,6 @@ function gamesRoomRoute(app) {
         if (!_.has(gameRooms, roomId)) {
           throw new Error('Room not found !');
         }
-
         // this will handle websockets connections
         const { token } = url.parse(request.url, true).query;
 
@@ -185,15 +191,16 @@ function gamesRoomRoute(app) {
         const userId = user._id.toString();
 
         const gameRoom = gameRooms[roomId];
-        if (!gameRoom) {
-          return app.httpErrors.notFound();
-        }
 
         gameRoom.addUser({ userId, socket: conn.socket });
 
       } catch (err) {
         app.log.error(err);
-        conn.write(err.message);
+        conn.socket.send(JSON.stringify({
+          isError: true,
+          key: 'room-not-found',
+          message: err.message,
+        }));
         conn.end();
       }
     }

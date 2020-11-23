@@ -1,13 +1,17 @@
-import { race, throwError, timer } from 'rxjs';
-import { tap, takeUntil, map, catchError } from 'rxjs/operators/index.js';
+import { race, timer } from 'rxjs';
+import { tap, takeUntil, map } from 'rxjs/operators/index.js';
 
 import { createPlayerReadyMessage, getAllPlayersReady$, getPlayerReadyMessage$ } from './idle.functions.js';
-import { getOwnerCanceledMessage$, createGameCancelMessage } from './start.functions.js';
+import { getOwnerCanceledMessage$, createGameCancelMessage, createTimerMessage } from './start.functions.js';
 
 export async function onStartTransition(context) {
-  const { timeout, messages$, players$, ownerUserId, sendToEveryone, onCancel } = context;
+  const { timeout, messages$, players$, ownerUserId, sendToEveryone } = context;
 
   const timer$ = timer(timeout);
+
+  sendToEveryone({
+    message: createTimerMessage({ timeout }),
+  });
 
   const ownerCanceled$ = getOwnerCanceledMessage$({ messages$, ownerUserId })
   const playerReadyMessage$ = getPlayerReadyMessage$({ messages$ });

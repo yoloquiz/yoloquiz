@@ -9,6 +9,13 @@ export function createGameCancelMessage() {
   };
 }
 
+export function createTimerMessage({ timeout }) {
+  return {
+    name: 'game-timer',
+    payload: { timeout },
+  };
+}
+
 export const getCanceledMessage$ = ({ messages$ }) => messages$
   .pipe(
     filter(({ name }) => name === messageType.gameCancel)

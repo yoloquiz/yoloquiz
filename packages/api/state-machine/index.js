@@ -22,6 +22,7 @@ export class StateMachine {
     try {
       await this.runTransition({ transition });
     } catch (error) {
+      console.error(error);
       return this.runState({ state: this.state });
     }
     
