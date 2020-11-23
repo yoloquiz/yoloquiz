@@ -9,7 +9,7 @@ export const privateApi = async ({ method = 'GET', headers = {}, ...options }) =
 
   return axios({
     method,
-    baseURL: '/api',
+    baseURL: 'http://localhost:3000',
     headers: {
       ...headers,
       Authorization: `Bearer ${accessToken}`,

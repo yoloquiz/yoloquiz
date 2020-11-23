@@ -4,7 +4,7 @@ import axios from 'axios';
 export const publicApi = ({ method = 'GET', ...options }) => {
   return axios({
     method,
-    baseURL: '/api',
+    baseURL: 'http://localhost:3000',
     ...options,
   });
 };

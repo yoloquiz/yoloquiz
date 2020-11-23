@@ -1,7 +1,25 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import Game from '../views/Game.vue';
 import Login from '../views/Login.vue';
+import store from '../store';
 
 const routes = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login,
+  },
+  {
+    path: '/games/:roomId?',
+    name: 'Game',
+    component: Game,
+    beforeEnter: (to, from, next) => {
+      if (!store.state.auth.isAuthenticated) {
+        return next('/login');
+      }
+      return next();
+    },
+  },
   {
     path: '/',
     name: 'Home',

@@ -4,7 +4,7 @@ import { publicApi } from '@/modules/shared/api/api.public';
 export async function login({ email, password }) {
   const { data } = await publicApi({
     method: 'POST',
-    url: 'login',
+    url: '/security/login',
     data: {
       email,
       password,
