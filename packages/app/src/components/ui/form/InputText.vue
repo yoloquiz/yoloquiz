@@ -1,10 +1,11 @@
 <template>
-  <label class="w-full pt-1 pb-5 flex flex-col">
-    <span class="font-medium text-left py-1">{{ label }}</span>
+  <label>
+    <span class="block uppercase text-gray-700 text-xs font-bold mb-2">{{ label }}</span>
     <input
       ref="input"
+      style="transition: all 0.15s ease 0s;"
+      class="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:shadow-outline w-full"
       :type="type"
-      class="py-3 px-4 transition duration-300 border hover:ring-1 hover:ring-blue-500 bg-white rounded-lg placeholder-gray-400 text-gray-900 appearance-none inline-block w-full focus:outline-none focus:ring-2 focus:ring-blue-600"
       :class="inputClasses"
       :placeholder="placeholder"
       v-model="state.internalValue"

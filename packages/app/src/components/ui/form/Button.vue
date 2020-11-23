@@ -1,6 +1,7 @@
 <template>
   <button
-    class="py-3 px-5 border relative text-center transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 appearance-none rounded-lg"
+    class="bg-gray-900 text-white active:bg-gray-700 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full"
+    style="transition: all 0.15s ease 0s;"
     :class="classes"
     :disabled="disabled || loading"
     @click="$emit('click', $event)"
