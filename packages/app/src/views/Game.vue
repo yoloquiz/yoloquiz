@@ -43,7 +43,7 @@ export default {
     },
     async createRoom() {
       const token =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZmI2YWE2ODBkNWFlNTE0YjEyZTg4ZGEiLCJpYXQiOjE2MDU5NTk3MTEsImV4cCI6MTYwODU1MTcxMX0.45KNauIVfcm305P20OXe2ndyToctCoChorqsvZAdci0';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZmI2YWI5NzU4Zjg4ZDE1Nzg1NGNiN2UiLCJpYXQiOjE2MDY1NzIxOTksImV4cCI6MTYwOTE2NDE5OX0.UpdQB1CQqDWBmXrqNeBPOaUE8uX0BDXXLjLP-XrIKig';
       const headers = new Headers({
         Authorization: `Bearer ${token}`,
       });

@@ -3,7 +3,7 @@ import url from 'url';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { StateMachine } from '../../state-machine/index.js';
 
-import * as securityService from '../security/security.service.js';
+import * as authService from '../auth/auth.service.js';
 import { onIdleState } from './idle.state.js';
 import { onStartTransition } from './start.transition.js';
 
@@ -184,10 +184,11 @@ function gamesRoomRoute(app) {
         if (!_.has(gameRooms, roomId)) {
           throw new Error('Room not found !');
         }
+
         // this will handle websockets connections
         const { token } = url.parse(request.url, true).query;
-
-        const user = await securityService.authenticateUserFromToken({ token });
+        const user = await authService.authenticateUserFromToken({ token });
+        console.log({ token, user });
         const userId = user._id.toString();
 
         const gameRoom = gameRooms[roomId];

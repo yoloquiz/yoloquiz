@@ -2,17 +2,6 @@ import mongoose from 'mongoose';
 
 const { model, Schema } = mongoose;
 
-const UserProfile = Schema({
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-});
-
 const Users = Schema(
   {
     email: {
@@ -22,16 +11,52 @@ const Users = Schema(
       unique: true,
       required: true,
     },
+    confirmed: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
     password: {
       type: String,
       required: true,
+      select: false,
     },
-    privateProfile: {
-      type: UserProfile,
-      required: true,
+    googleId: {
+      type: String,
+      select: false,
     },
+    googleAccessToken: {
+      type: String,
+      select: false,
+    },
+    googleRefreshToken: {
+      type: String,
+      select: false,
+    },
+    facebookId: {
+      type: String,
+      select: false,
+    },
+    facebookAccessToken: {
+      type: String,
+      select: false,
+    },
+    facebookRefreshToken: {
+      type: String,
+      select: false,
+    },
+    firstName: {
+      type: String,
+    },
+    lastName: {
+      type: String,
+    },
+    unreachable: {
+      type: Boolean,
+      default: false,
+    }
   },
-  { timestamps: true},
+  { timestamps: true },
 );
 
-export default mongoose.model('Users', Users);
+export default model('Users', Users);

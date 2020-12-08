@@ -1,43 +1,81 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Game from '../views/Game.vue';
-import Login from '../views/Login.vue';
-import store from '../store';
+import Home from '@/views/Home.vue';
+import Security from '@/components/layouts/Security.vue';
+import store from '@/store';
 
 const routes = [
   {
+    path: '/',
+    name: 'Security',
+    component: Security,
+    meta: {
+      requiresAuth: true,
+    },
+    children: [
+      {
+        path: '',
+        name: 'Home',
+        component: Home,
+      },
+      {
+        path: '/quizzes/create',
+        name: 'QuizCreate',
+        component: () => import('@/views/quizzes/QuizCreate.vue'),
+      },
+      {
+        path: '/quizzes/:quizId([0-9a-f]{24})',
+        name: 'Quiz',
+        component: () => import('@/views/quizzes/Quiz.vue'),
+      },
+      {
+        path: '/games/:roomId?',
+        name: 'Game',
+        component: () => import('@/views/Game.vue'),
+      },
+    ],
+  },
+  {
     path: '/login',
     name: 'Login',
-    component: Login,
+    component: () => import('@/views/auth/Login.vue'),
   },
   {
-    path: '/games/:roomId?',
-    name: 'Game',
-    component: Game,
-    beforeEnter: (to, from, next) => {
-      if (!store.state.auth.isAuthenticated) {
-        return next('/login');
-      }
-      return next();
-    },
+    path: '/logout',
+    name: 'Logout',
+    component: () => import('@/views/auth/Logout.vue'),
   },
   {
-    path: '/',
-    name: 'Home',
-    component: Login,
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/views/auth/Register.vue'),
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    path: '/recovery',
+    name: 'Recovery',
+    component: () => import('@/views/auth/Recovery.vue'),
+  },
+  {
+    path: '/auth',
+    name: 'Auth',
+    component: () => import('@/views/auth/Auth.vue'),
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (store.getters['auth/isAuthenticated']) {
+      next();
+      return;
+    }
+    next('/login');
+  } else {
+    next();
+  }
 });
 
 export default router;

@@ -4,5 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "private": true,
-  "workspaces": ["packages/*"]
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "dev:app": "yarn workspace app run serve",
+    "dev:api": "yarn workspace api run dev"
+  }
 }

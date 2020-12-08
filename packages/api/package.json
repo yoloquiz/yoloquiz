@@ -1,5 +1,5 @@
 {
-  "name": "@yoloquiz/api",
+  "name": "api",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "bcrypt": "^5.0.0",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.5",
     "fastify": "^3.8.0",
     "fastify-cors": "^4.1.0",
     "fastify-multer": "^2.0.2",
@@ -21,7 +23,10 @@
     "fluent-schema": "^1.0.5",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
+    "mailgun-js": "^0.22.0",
     "mongoose": "^5.10.14",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth": "^2.0.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "rxjs": "^6.6.3"

@@ -1,7 +1,10 @@
 import quizModel from './quizzes.model.js';
 
-export function createOneQuiz({ quiz, user }) {
-  return quizModel.create(quiz);
+export function createOneQuiz({ userId, name }) {
+  return quizModel.create({
+    owner: userId,
+    name,
+  });
 }
 
 export function updateOneQuiz({ quiz }) {
@@ -14,6 +17,12 @@ export function removeOneQuizById({ quizId }) {
 
 export function findOneQuizById({ quizId }) {
   return quizModel.findOne({ _id: quizId });
+}
+
+export async function findQuizOfUserOrFail({ userId, quizId }) {
+  const quiz = await quizModel.findOne({ _id: quizId, owner: userId });
+  if (!quiz) throw new Error('Not found or not allowed');
+  return quiz;
 }
 
 export function findAllQuizzes() {

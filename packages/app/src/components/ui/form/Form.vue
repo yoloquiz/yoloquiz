@@ -1,5 +1,5 @@
 <template>
-  <form :novalidate="true" @submit="$emit('submit', $event)" v-bind="$attrs">
+  <form :novalidate="true" v-bind="$attrs">
     <slot />
   </form>
 </template>

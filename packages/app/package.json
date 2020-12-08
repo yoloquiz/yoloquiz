@@ -1,5 +1,5 @@
 {
-  "name": "@yoloquiz/app",
+  "name": "app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,6 +12,7 @@
     "axios": "^0.21.0",
     "core-js": "^3.6.5",
     "lodash-es": "^4.17.15",
+    "mitt": "^2.1.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
     "validator": "^13.1.17",
     "vue": "^3.0.0",

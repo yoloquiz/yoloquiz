@@ -1,12 +1,12 @@
-version: "3.8"
+version: '2'
 
 services:
   mongo:
     image: mongo:latest
-    ports:
-      - 127.0.0.1:27017:27017
     volumes:
       - mongo-data:/data
+    ports:
+      - 127.0.0.1:27017:27017
 
 volumes:
   mongo-data:

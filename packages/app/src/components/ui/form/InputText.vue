@@ -1,6 +1,6 @@
 <template>
   <label>
-    <span class="block uppercase text-gray-700 text-xs font-bold mb-2">{{ label }}</span>
+    <span v-if="label" class="block uppercase text-gray-700 text-xs font-bold mb-2">{{ label }}</span>
     <input
       ref="input"
       style="transition: all 0.15s ease 0s;"
@@ -11,6 +11,7 @@
       v-model="state.internalValue"
     />
     <span
+      v-if="rules.length > 0"
       class="flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1 text-xs h-4"
       :class="{ invisible: !state.hasErrorMessages }"
     >
