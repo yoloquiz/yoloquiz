@@ -11,8 +11,8 @@ export function updateOneQuiz({ quiz }) {
   return quizModel.updateOne(quiz);
 }
 
-export function removeOneQuizById({ quizId }) {
-  return quizModel.findOneAndRemove({ _id: quizId });
+export function deleteQuizOfUser({ quizId, userId }) {
+  return quizModel.delete({ _id: quizId, owner: userId });
 }
 
 export function findOneQuizById({ quizId }) {
@@ -25,6 +25,14 @@ export async function findQuizOfUserOrFail({ userId, quizId }) {
   return quiz;
 }
 
-export function findAllQuizzes() {
-  return quizModel.find();
+export function findAllQuizzesOfUser({ userId }) {
+  return quizModel.find({ owner: userId });
+}
+
+export function incrementQuizPlayedCounter({ quizId }) {
+  return quizModel.findOneAndUpdate({ _id: quizId }, {
+    $inc: {
+      countPlayed: 1,
+    }
+  }).exec();
 }

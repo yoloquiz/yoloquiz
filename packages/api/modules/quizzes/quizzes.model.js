@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import softDeletePlugin from 'mongoose-delete';
 
 const { model, Schema } = mongoose;
 
@@ -61,6 +62,11 @@ const quizzesSchema = new Schema(
       type: String,
       required: true,
     },
+    countPlayed: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
     tags: [
       {
         name: {
@@ -78,5 +84,12 @@ const quizzesSchema = new Schema(
   },
   { timestamps: true },
 );
+
+quizzesSchema.plugin(softDeletePlugin, {
+  indexFields: true,
+  overrideMethods: true,
+  deletedAt: true,
+  // deletedBy: true,
+});
 
 export default model('Quizzes', quizzesSchema);

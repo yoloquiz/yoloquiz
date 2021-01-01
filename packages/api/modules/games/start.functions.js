@@ -1,18 +1,17 @@
 import { take, filter } from "rxjs/operators/index.js";
-
-import { getOwnerMessage$ } from "./idle.functions.js";
+import { getOwnerMessage$ } from "./games.functions.js";
 import { messageType } from './messages.constants.js';
 
 export function createGameCancelMessage() {
   return {
-    name: 'game-canceled',
+    name: messageType.gameCancel,
   };
 }
 
 export function createTimerMessage({ timeout }) {
   return {
-    name: 'game-timer',
-    payload: { timeout },
+    name: messageType.gameTimer,
+    payload: timeout,
   };
 }
 

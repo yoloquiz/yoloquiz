@@ -2,6 +2,7 @@ import fastifyPassportModule from 'fastify-passport';
 import authRoutes from '../modules/auth/auth.routes.js';
 import usersRoutes from '../modules/users/users.routes.js';
 import quizzesRoutes from '../modules/quizzes/quizzes.routes.js';
+import gamesRoutes from '../modules/games/games.routes.js';
 import uploadsRoutes from '../modules/uploads/uploads.routes.js';
 
 const fastifyPassport = fastifyPassportModule.default;
@@ -21,6 +22,7 @@ async function privateRoutes(app) {
 
   app.register(usersRoutes, { prefix: '/users' });
   app.register(quizzesRoutes, { prefix: '/quizzes' });
+  app.register(gamesRoutes, { prefix: '/games' });
   app.register(uploadsRoutes, { prefix: '/uploads' });
 }
 

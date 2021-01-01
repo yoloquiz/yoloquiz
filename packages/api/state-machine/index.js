@@ -51,6 +51,10 @@ export class StateMachine {
     return this.runMethod({ methodName: transitionMethodName });
   }
   
+  getState() {
+    return this.state;
+  }
+
   setState({ transitionConfig }) {
     this.state = transitionConfig.to;
     return this.runState({ state: this.state });

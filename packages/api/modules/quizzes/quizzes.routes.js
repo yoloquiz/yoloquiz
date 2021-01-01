@@ -6,8 +6,9 @@ export function findAllQuizzes() {
   return {
     method: 'GET',
     url: '/',
-    handler: () => {
-      return quizzesService.findAllQuizzes();
+    handler: async (request) => {
+      const { userId } = request.account;
+      return await quizzesService.findAllQuizzesOfUser({ userId });
     },
   };
 }
@@ -30,9 +31,32 @@ export function fetchOneQuiz() {
   return {
     method: 'GET',
     url: '/:quizId',
-    handler: async (request) => {
+    handler: async (request, reply) => {
       const { quizId } = request.params;
-      return await quizzesService.findOneQuizById({ quizId });
+      const { userId } = request.account;
+
+      try {
+        return await quizzesService.findQuizOfUserOrFail({ quizId, userId });
+      } catch (error) {
+        reply.badRequest(error.message);
+      }
+    }
+  }
+}
+
+export function deleteQuiz() {
+  return {
+    method: 'DELETE',
+    url: '/:quizId',
+    handler: async (request, reply) => {
+      const { quizId } = request.params;
+      const { userId } = request.account;
+
+      try {
+        await quizzesService.deleteQuizOfUser({ quizId, userId });
+      } catch (error) {
+        reply.badRequest(error.message);
+      }
     }
   }
 }
@@ -136,6 +160,7 @@ export default async (app) => {
   app.route(fetchOneQuiz(app));
   app.route(findAllQuizzes(app));
   app.route(createOneQuiz(app));
+  app.route(deleteQuiz(app));
   // Questions module
   app.route(createQuestion(app));
   app.route(updateQuestion(app));

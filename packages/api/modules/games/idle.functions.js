@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { withLatestFrom, scan, take, filter, map, tap } from 'rxjs/operators/index.js';
-
+import { getOwnerMessage$ } from './games.functions.js';
 import { messageType } from './messages.constants.js';
 
 export const createPlayerReadyMessage = ({ playerId, isReady }) => ({
@@ -15,21 +15,12 @@ export function areAllPlayersReady({ players }) {
   return !_.some(players, { isReady: false });
 }
 
-export const getStartGameMessage$ = ({ messages$ }) => messages$
-  .pipe(
-    filter(({ name }) => name === messageType.startGame),
-  );
-
-export const getOwnerMessage$ = ({ messages$, ownerUserId }) => messages$
-  .pipe(
-    filter(({ userId }) => userId === ownerUserId),
-  );
-
 export const getGameStartMessage$ = ({ messages$, ownerUserId }) => {
   const ownerMessage$ = getOwnerMessage$({ messages$, ownerUserId });
 
-  return getStartGameMessage$({ messages$: ownerMessage$ })
+  return ownerMessage$
     .pipe(
+      filter(({ name }) => name === messageType.gameStart),
       take(1)
     );  
 }

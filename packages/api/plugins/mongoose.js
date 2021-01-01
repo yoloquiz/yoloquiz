@@ -8,5 +8,6 @@ export default async function mongoosePlugin(app, { mongoUri }) {
   await mongoose.connect(mongoUri, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
+    useFindAndModify: false,
   });
 }

@@ -3,14 +3,17 @@ import url from 'url';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { StateMachine } from '../../state-machine/index.js';
 
+import * as quizzesService from '../quizzes/quizzes.service.js';
 import * as authService from '../auth/auth.service.js';
+import * as gamesSchema from './games.schema.js';
 import { onIdleState } from './idle.state.js';
 import { onStartTransition } from './start.transition.js';
+import { onStartedState } from './started.state.js';
 
 const gameRooms = {};
 
 class GameRoom {
-  constructor({ owner, logger }) {
+  constructor({ owner, quiz, logger }) {
     this.$ = {
       players$: new BehaviorSubject([]),
       messages$: new Subject(),
@@ -21,6 +24,7 @@ class GameRoom {
       init: 'idle',
       transitions: [
         { name: 'start', from: 'idle', to: 'started' },
+        { name: 'finish', from: 'started', to: 'finished' },
       ],
       methods: {
         // On entering state
@@ -30,8 +34,8 @@ class GameRoom {
           }, '[state] applying new state');
           this.sendToEveryone({
             message: {
-              name: 'state-update',
-              payload: { state },
+              name: 'game-state',
+              payload: state,
             }
           });
         },
@@ -42,8 +46,8 @@ class GameRoom {
           }, '[transition] executing transition');
           this.sendToEveryone({
             message: {
-              name: 'transition-update',
-              payload: { transition },
+              name: 'game-transition',
+              payload: transition,
             }
           });
         },
@@ -51,9 +55,7 @@ class GameRoom {
         onIdleState: () => onIdleState({
           messages$: this.$.messages$,
           ownerUserId: owner.userId,
-          start: () => {
-            this.state.run({ transition: 'start' });
-          },
+          start: () => this.state.run({ transition: 'start' }),
         }),
         // Timeout of X seconds or awaiting all players ready status
         onStartTransition: () => onStartTransition({
@@ -61,15 +63,23 @@ class GameRoom {
           players$: this.$.players$,
           ownerUserId: owner.userId,
           sendToEveryone: this.sendToEveryone.bind(this),
-          onCancel: () => this.state.run('start'),
-          timeout: 10 * 1000,
+          timeout: 3 * 1000,
         }),
+        onStartedState: () => onStartedState({
+          sendToEveryone: this.sendToEveryone.bind(this),
+          ownerUserId: owner.userId,
+          messages$: this.$.messages$,
+          players$: this.$.players$,
+          quiz: this.quiz,
+          finish: () => this.state.run({ transition: 'finish' }),
+        })
       },
     });
     this.owner = owner;
+    this.quiz = quiz;
     this.users = {};
   }
-
+  
   /**
    * Utils
    */
@@ -113,7 +123,7 @@ class GameRoom {
       .forEach((_socket, userId) => this.sendTo({ userId, message }));
   }
 
-  addUser({ userId, socket }) {
+  addUser({ userId, pseudo, socket }) {
     this.logger.info({ userId }, 'Adding user to game room');
     if (this.users[userId]) {
       throw new Error('User is already in room!');
@@ -122,12 +132,40 @@ class GameRoom {
     this.users[userId] = {
       userId,
       socket,
+      pseudo,
       isOwner: userId === this.owner.userId,
     };
 
     this.$.players$.next(Object.values(this.users));
 
-    this.sendToEveryone({ message: { name: 'user-joined', payload: { userId, pseudo: 'RandomPseudo?' } }, without: [userId] });
+    this.sendToEveryone({
+      message: {
+        name: 'user-joined',
+        payload: { userId, pseudo },
+      },
+      without: [userId],
+    });
+    this.sendTo({
+      userId,
+      message: {
+        name: 'user-list',
+        payload: _.map(this.users, (user) => _.pick(user, 'userId', 'pseudo', 'isOwner'))
+      }
+    });
+    this.sendTo({
+      userId,
+      message: {
+        name: 'quiz-data',
+        payload: _.pick(this.quiz, 'name', 'createdAt', 'updatedAt', 'owner'),
+      }
+    });
+    this.sendTo({
+      userId,
+      message: {
+        name: 'game-state',
+        payload: this.state.getState(),
+      }
+    })
 
     socket.on('message', (message) => this.handleMessage({ userId, message }));
 
@@ -141,6 +179,14 @@ class GameRoom {
     delete this.users[userId];
 
     this.$.players$.next(Object.values(this.users));
+
+    this.sendToEveryone({
+      message: {
+        name: 'user-left',
+        payload: { userId }
+      },
+      without: [userId],
+    });
   }
 }
 
@@ -148,22 +194,34 @@ function createGameRoomRoute(app) {
   return {
     method: 'POST',
     url: '/',
-    handler: ({ account: { userId } }, reply) => {
-      const roomId = _.times(6, () => _.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')).join('');
+    schema: gamesSchema.createGameRoomSchema,
+    handler: async (request, reply) => {
+      const { userId } = request.account;
+      const { quizId } = request.body;
 
-      const logger = app.log.child({
-        roomId,
-        userId,
-      });
+      try {
+        const quiz = await quizzesService.findQuizOfUserOrFail({ quizId, userId });
+        await quizzesService.incrementQuizPlayedCounter({ quizId });
+        const roomId = _.times(6, () => _.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')).join('');
 
-      const gameRoom = new GameRoom({
-        logger,
-        owner: { userId },
-      });
+        const logger = app.log.child({
+          roomId,
+          userId,
+          quizId,
+        });
 
-      gameRooms[roomId] = gameRoom;
+        const gameRoom = new GameRoom({
+          logger,
+          quiz: quiz.toObject(),
+          owner: { userId },
+        });
 
-      return { roomId };
+        gameRooms[roomId] = gameRoom;
+
+        return { roomId };
+      } catch (error) {
+        reply.badRequest(error.message);
+      }
     },
   }
 }
@@ -173,7 +231,6 @@ function gamesRoomRoute(app) {
     method: 'GET',
     url: '/:roomId',
     handler: (req, reply) => {
-      // this will handle http requests
       reply.send({ hello: 'world' })
     },
     wsHandler: async (conn, request, params, lol) => {
@@ -185,15 +242,18 @@ function gamesRoomRoute(app) {
           throw new Error('Room not found !');
         }
 
-        // this will handle websockets connections
         const { token } = url.parse(request.url, true).query;
         const user = await authService.authenticateUserFromToken({ token });
-        console.log({ token, user });
+
         const userId = user._id.toString();
 
         const gameRoom = gameRooms[roomId];
 
-        gameRoom.addUser({ userId, socket: conn.socket });
+        gameRoom.addUser({
+          userId,
+          pseudo: `${user.firstName} ${user.lastName}`,
+          socket: conn.socket,
+        });
 
       } catch (err) {
         app.log.error(err);
