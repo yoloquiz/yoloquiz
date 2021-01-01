@@ -28,9 +28,14 @@ const routes = [
         component: () => import('@/views/quizzes/Quiz.vue'),
       },
       {
-        path: '/games/:roomId?',
+        path: '/:roomId([0-9A-Z]{6})',
         name: 'Game',
         component: () => import('@/views/Game.vue'),
+      },
+      {
+        path: 'quizzes/:quizId([0-9a-f]{24})/play',
+        name: 'QuizPlay',
+        component: () => import('@/views/quizzes/QuizPlay.vue'),
       },
     ],
   },
@@ -72,6 +77,7 @@ router.beforeEach((to, from, next) => {
       next();
       return;
     }
+    localStorage.setItem('after_auth_path', to.path);
     next('/login');
   } else {
     next();

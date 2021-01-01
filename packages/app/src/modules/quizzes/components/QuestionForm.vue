@@ -81,11 +81,11 @@
         </label>
       </li>
     </ul>
-    <div class="flex w-full">
+    <div class="flex flex-col md:flex-row w-full">
       <ConfirmButton variant="error" :loading="state.deleteLoading" @confirm="deleteQuestion">
         <i class="fas fa-trash"></i>
       </ConfirmButton>
-      <Button :motion="false" class="ml-2 flex-1" :loading="state.loading">Enregister</Button>
+      <Button :motion="false" class="mt-2 md:mt-0 md:ml-2 flex-1" :loading="state.loading">Enregister</Button>
     </div>
   </Form>
 </template>

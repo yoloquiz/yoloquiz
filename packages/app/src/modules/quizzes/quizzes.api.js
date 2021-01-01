@@ -19,6 +19,13 @@ export async function createQuiz({ name }) {
   return { quiz: data };
 }
 
+export function deleteQuiz({ quizId }) {
+  return privateApi({
+    method: 'DELETE',
+    url: `/quizzes/${quizId}`,
+  });
+}
+
 export async function fetchOneQuiz({ quizId }) {
   const { data } = await privateApi({
     method: 'GET',
@@ -49,4 +56,13 @@ export async function deleteQuestion({ quizId, questionId }) {
     url: `/quizzes/${quizId}/questions`,
     data: { questionId },
   });
+}
+
+export async function createQuizRoom({ quizId }) {
+  const { data } = await privateApi({
+    method: 'POST',
+    url: `/games/`,
+    data: { quizId },
+  });
+  return data;
 }

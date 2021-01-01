@@ -19,6 +19,11 @@ const mutations = {
     if (!state.list) return;
     state.list.push(quiz);
   },
+  deleteQuiz(state, { quizId }) {
+    state.current = undefined;
+    if (!state.list) return;
+    _.remove(state.list, { _id: quizId });
+  },
   addQuestion(state, { question }) {
     if (!state.current) return;
     state.current.questions.push(question);
@@ -58,6 +63,17 @@ const actions = {
       throw new Error('Impossible de créer le quiz');
     }
   },
+  async deleteQuiz({ commit, state }) {
+    try {
+      if (!state.current) return;
+      const { _id: quizId } = state.current;
+      await quizzesApi.deleteQuiz({ quizId });
+      commit('deleteQuiz', { quizId });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Impossible de supprimer le quiz');
+    }
+  },
   async fetchOneQuiz({ commit }, { quizId }) {
     try {
       const { quiz } = await quizzesApi.fetchOneQuiz({ quizId });
@@ -95,6 +111,14 @@ const actions = {
     } catch (error) {
       console.error(error);
       throw new Error('Impossible de supprimer la question');
+    }
+  },
+  async createQuizRoom(store, { quizId }) {
+    try {
+      return await quizzesApi.createQuizRoom({ quizId });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Impossible de créer le salon');
     }
   },
 };

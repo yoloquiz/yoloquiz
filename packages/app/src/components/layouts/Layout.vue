@@ -1,11 +1,13 @@
 <template>
-  <Navbar :fixed="fixed" />
-  <main :class="{ 'container mx-auto': container }">
-    <section :class="classes">
-      <slot />
-    </section>
-  </main>
-  <Footer :fixed="true" />
+  <div class="min-h-screen flex flex-col">
+    <Navbar />
+    <main class="px-4 flex-1" :class="{ 'container mx-auto': container }">
+      <section :class="classes">
+        <slot />
+      </section>
+    </main>
+    <Footer />
+  </div>
 </template>
 
 <script>
@@ -19,10 +21,6 @@ export default {
   },
   props: {
     classes: String,
-    fixed: {
-      type: Boolean,
-      default: false,
-    },
     container: {
       type: Boolean,
       default: false,

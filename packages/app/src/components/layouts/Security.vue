@@ -1,19 +1,13 @@
 <template>
-  <Layout container v-if="state.accessGranted">
-    <router-view></router-view>
-  </Layout>
+  <router-view v-if="state.accessGranted"></router-view>
 </template>
 
 <script>
 import { onMounted, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import Layout from '@/components/layouts/Layout.vue';
 
 export default {
-  components: {
-    Layout,
-  },
   setup() {
     const store = useStore();
     const router = useRouter();

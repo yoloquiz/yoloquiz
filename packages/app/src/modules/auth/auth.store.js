@@ -28,6 +28,8 @@ const getters = {
   isAuthenticated: ({ accessToken, user }) => !!accessToken && !!user,
   currentUser: ({ user }) => user,
   isProfileComplete: ({ user }) => !_.isEmpty(user.firstName) && !_.isEmpty(user.lastName),
+  getAccessToken: ({ accessToken }) => accessToken,
+  getUserId: ({ user }) => _.get(user, '_id'),
 };
 
 const mutations = {

@@ -1,61 +1,74 @@
 <template>
-  <div>
-    <div>
-      <button @click="createRoom">New room</button>
+  <div class="min-h-screen flex flex-col bg-gray-50">
+    <GameNavbar />
+    <div class="flex-1 flex flex-col">
+      <StateMachine />
     </div>
-    <Room v-if="roomId" :roomId="roomId" />
-    <div v-else>
-      Loading...
-    </div>
+    <GameAdminBar v-if="isGameAdmin()" />
+    <Countdown class="timer" :timer="timer" />
   </div>
 </template>
 
 <script>
-import Room from '@/components/game/Room.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { mapGetters, useStore } from 'vuex';
+import { computed, onMounted, onUnmounted, reactive, toRefs } from 'vue';
+
+import GameNavbar from '@/modules/games/components/GameNavbar.vue';
+import GameAdminBar from '@/modules/games/components/GameAdminBar.vue';
+import Countdown from '@/modules/games/components/Countdown.vue';
+import StateMachine from '@/modules/games/components/StateMachine.vue';
+import { useNotify } from '@/plugins/notify';
 
 export default {
   name: 'Game',
   components: {
-    Room,
+    GameNavbar,
+    GameAdminBar,
+    StateMachine,
+    Countdown,
   },
-  data() {
-    return {
-      roomId: undefined,
-    };
-  },
-  created() {
-    const { roomId } = this.$route.params;
-    this.attemptJoinRoom({ roomId });
-  },
-  watch: {
-    $route(to) {
-      const { roomId } = to.params;
-      this.attemptJoinRoom({ roomId });
-    },
-  },
-  methods: {
-    attemptJoinRoom({ roomId }) {
-      if (roomId === '') {
-        this.createRoom();
-        return;
+  setup() {
+    const route = useRoute();
+    const router = useRouter();
+    const store = useStore();
+    const notify = useNotify();
+
+    const { roomId } = route.params;
+
+    const state = reactive({
+      quiz: computed(() => store.state.games.quiz),
+      timer: computed(() => store.state.games.timer),
+    });
+
+    onMounted(async () => {
+      try {
+        await store.dispatch('games/initSocketConnection', { roomId });
+        notify('Le quiz est fermé ou indisponible');
+        router.push('/');
+      } catch (error) {
+        console.log(error);
+        notify.error(error.message);
       }
-      this.roomId = roomId;
-    },
-    async createRoom() {
-      const token =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZmI2YWI5NzU4Zjg4ZDE1Nzg1NGNiN2UiLCJpYXQiOjE2MDY1NzIxOTksImV4cCI6MTYwOTE2NDE5OX0.UpdQB1CQqDWBmXrqNeBPOaUE8uX0BDXXLjLP-XrIKig';
-      const headers = new Headers({
-        Authorization: `Bearer ${token}`,
-      });
-      const response = await fetch('http://localhost:3000/games/', {
-        method: 'POST',
-        headers,
-      });
-      const { roomId } = await response.json();
-      this.$router.push(`/games/${roomId}`);
-    },
+    });
+
+    onUnmounted(() => {
+      store.dispatch('games/closeSocketConnection');
+    });
+
+    return {
+      ...toRefs(state),
+      ...mapGetters('games', ['isGameAdmin']),
+    };
   },
 };
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.timer {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+</style>

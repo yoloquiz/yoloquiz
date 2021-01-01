@@ -1,4 +1,5 @@
 const colors = require('tailwindcss/colors');
+const { gridTemplateColumns } = require('tailwindcss/defaultTheme');
 
 module.exports = {
   purge: ['./src/**/*.html', './src/**/*.vue', './src/**/*.jsx'],
@@ -13,9 +14,14 @@ module.exports = {
       gray: colors.coolGray,
       red: colors.red,
       yellow: colors.amber,
+      blue: colors.blue,
       green: colors.emerald,
     },
     backgroundColor: (theme) => theme('colors'),
+    gridTemplateColumns: {
+      ...gridTemplateColumns,
+      game: 'minmax(300px, 1fr) minmax(900px, 3fr)',
+    },
   },
   variants: {
     extend: {

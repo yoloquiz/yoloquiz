@@ -1,6 +1,6 @@
 <template>
   <Notifications />
-  <div class="min-h-screen relative pb-24">
+  <div class="min-h-screen relative">
     <router-view />
   </div>
 </template>

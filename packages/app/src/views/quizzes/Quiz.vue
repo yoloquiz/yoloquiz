@@ -1,26 +1,38 @@
 <template>
-  <div v-if="quiz" class="px-4">
-    <h1 class="text-3xl mt-12 mb-8">{{ quiz.name }}</h1>
-    <QuizEditor />
-  </div>
-  <div v-else>
-    Chargement...
-  </div>
+  <Layout container>
+    <div v-if="quiz">
+      <h1 class="text-3xl mt-8 mb-6">{{ quiz.name }}</h1>
+      <QuizEditor />
+      <ConfirmButton variant="error" class="ml-4" @confirm="deleteQuiz">
+        Supprimer le quiz
+      </ConfirmButton>
+    </div>
+    <div v-else>
+      Chargement...
+    </div>
+  </Layout>
 </template>
 
 <script>
 import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import QuizEditor from '@/modules/quizzes/components/QuizEditor.vue';
+import Layout from '@/components/layouts/Layout.vue';
+import ConfirmButton from '@/components/ui/ConfirmButton.vue';
 import { useNotify } from '@/plugins/notify';
 
 export default {
-  components: { QuizEditor },
+  components: {
+    QuizEditor,
+    Layout,
+    ConfirmButton,
+  },
   setup() {
     const store = useStore();
     const route = useRoute();
+    const router = useRouter();
     const notify = useNotify();
 
     const quiz = computed(() => store.state.quizzes.current);
@@ -33,8 +45,15 @@ export default {
       }
     });
 
+    function deleteQuiz() {
+      store.dispatch('quizzes/deleteQuiz');
+      notify('Le quiz a été supprimé');
+      router.push('/');
+    }
+
     return {
       quiz,
+      deleteQuiz,
     };
   },
 };
