@@ -13,7 +13,6 @@ export default {
 
     onMounted(() => {
       store.dispatch('auth/logout');
-      store.dispatch('events/cleanOnLogout');
       notify.success('Vous êtes déconnecté. Au revoir !');
       router.push('/login');
     });

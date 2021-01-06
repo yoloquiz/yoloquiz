@@ -45,11 +45,11 @@ export default {
       try {
         await store.dispatch('games/initSocketConnection', { roomId });
         notify('Le quiz est fermé ou indisponible');
-        router.push('/');
       } catch (error) {
         console.log(error);
-        notify.error(error.message);
+        notify.error('Connexion perdue');
       }
+      router.push('/');
     });
 
     onUnmounted(() => {

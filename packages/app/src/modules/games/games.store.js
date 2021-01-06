@@ -13,8 +13,11 @@ const stateData = {
   timer: undefined,
 };
 
-export const rx = mitt();
-export const tx = mitt();
+export const game = {
+  rx: mitt(),
+  tx: mitt(),
+  ws: undefined,
+};
 
 const getters = {
   isGameAdmin: (state, localGetters, rootState, rootGetters) => {
@@ -60,8 +63,13 @@ const getters = {
 
 const mutations = {
   reset(state) {
-    rx.all.clear();
-    tx.all.clear();
+    if (game.ws instanceof WebSocket) {
+      game.ws.close();
+      game.ws = undefined;
+    }
+
+    game.rx.all.clear();
+    game.tx.all.clear();
 
     state.gameState = undefined;
     state.scoreBoard = undefined;
@@ -110,7 +118,7 @@ function handleMessage(event) {
   try {
     const { name, payload } = JSON.parse(event.data);
 
-    rx.emit(name, payload);
+    game.rx.emit(name, payload);
   } catch (error) {
     console.error(error);
   }
@@ -119,36 +127,36 @@ function handleMessage(event) {
 const actions = {
   initSocketConnection({ commit, dispatch, rootGetters }, { roomId }) {
     return new Promise((resolve, reject) => {
-      const ws = new WebSocket(`${config.socketUrl}/games/${roomId}?token=${rootGetters['auth/getAccessToken']}`);
+      game.ws = new WebSocket(`${config.socketUrl}/games/${roomId}?token=${rootGetters['auth/getAccessToken']}`);
 
-      ws.onmessage = handleMessage;
-      ws.onclose = resolve;
-      ws.onerror = reject;
+      game.ws.onmessage = handleMessage;
+      game.ws.onclose = resolve;
+      game.ws.onerror = reject;
 
-      tx.on('*', (name, payload) => ws.send(JSON.stringify({ name, payload })));
-      rx.on('quiz-data', (quiz) => commit('setQuiz', quiz));
-      rx.on('user-list', (players) => commit('setPlayers', players));
-      rx.on('user-left', (playerLeft) => commit('removePlayer', playerLeft));
-      rx.on('user-joined', (playerJoined) => commit('addPlayer', playerJoined));
-      rx.on('game-state', (gameState) => commit('setGameState', gameState));
-      rx.on('game-next-question', (question) => commit('setActiveQuestion', question));
-      rx.on('game-question-answers', (correctChoices) => commit('setCorrectChoices', correctChoices));
-      rx.on('game-show-score-board', (scoreBoard) => commit('setScoreBoard', scoreBoard));
-      rx.on('game-timer', (timer) => dispatch('setupTimer', timer));
+      game.tx.on('*', (name, payload) => game.ws.send(JSON.stringify({ name, payload })));
+      game.rx.on('quiz-data', (quiz) => commit('setQuiz', quiz));
+      game.rx.on('user-list', (players) => commit('setPlayers', players));
+      game.rx.on('user-left', (playerLeft) => commit('removePlayer', playerLeft));
+      game.rx.on('user-joined', (playerJoined) => commit('addPlayer', playerJoined));
+      game.rx.on('game-state', (gameState) => commit('setGameState', gameState));
+      game.rx.on('game-next-question', (question) => commit('setActiveQuestion', question));
+      game.rx.on('game-question-answers', (correctChoices) => commit('setCorrectChoices', correctChoices));
+      game.rx.on('game-show-score-board', (scoreBoard) => commit('setScoreBoard', scoreBoard));
+      game.rx.on('game-timer', (timer) => dispatch('setupTimer', timer));
     });
   },
   closeSocketConnection({ commit }) {
     commit('reset');
   },
   startGame() {
-    tx.emit('game-start');
+    game.tx.emit('game-start');
   },
   sendGameProceed() {
-    tx.emit('game-proceed');
+    game.tx.emit('game-proceed');
   },
   sendChoice({ commit }, choiceId) {
     commit('setPlayerChoiceId', choiceId);
-    tx.emit('player-answer', { choiceId });
+    game.tx.emit('player-answer', { choiceId });
   },
   setupTimer({ commit }, timer) {
     commit('setTimer', timer);
