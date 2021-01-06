@@ -6,7 +6,7 @@
         <div class="w-full md:w-4/12 px-4">
           <div class="text-sm text-white font-semibold py-1">
             Copyright © {{ date }}
-            <a href="https://gifty.skyloud.app" class="text-white hover:text-gray-400 text-sm font-semibold py-1"
+            <a href="https://yoloquiz.skyloud.app" class="text-white hover:text-gray-400 text-sm font-semibold py-1"
               >YoloQuiz</a
             >
           </div>
