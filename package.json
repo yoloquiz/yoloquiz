@@ -6,6 +6,7 @@
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
+    "start": "yarn workspace api run start",
     "dev:app": "yarn workspace app run serve",
     "dev:api": "yarn workspace api run dev"
   }

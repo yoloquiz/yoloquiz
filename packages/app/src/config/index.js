@@ -1,5 +1,7 @@
+const { host, protocol } = window?.location || {};
+const socketProtocol = protocol === 'http:' ? 'ws:' : 'wss:';
+
 export default {
-  appUrl: process.env.VUE_APP_URL || 'http://localhost:8080',
-  apiUrl: process.env.VUE_APP_API_URL || 'http://localhost:3000/api',
-  socketUrl: process.env.VUE_APP_SOCKET_URL || 'ws://localhost:3000/api',
+  apiUrl: process.env.NODE_ENV === 'production' ? `${protocol}//${host}/api` : 'http://localhost:3000/api',
+  socketUrl: process.env.NODE_ENV === 'production' ? `${socketProtocol}://${host}/api` : 'ws://localhost:3000/api',
 };

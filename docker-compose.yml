@@ -3,10 +3,31 @@ version: '2'
 services:
   mongo:
     image: mongo:latest
-    volumes:
-      - mongo-data:/data
     ports:
       - 127.0.0.1:27017:27017
+    volumes:
+      - mongo-data:/data
+
+  yoloquiz:
+    image: yoloquiz/yoloquiz:latest
+    build: .
+    volumes:
+      - yoloquiz-data:/app/packages/api/uploads
+    depends_on:
+      - mongo
+    environment:
+      # Please change secret !
+      - SECRET='abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKL'
+      - APP_URL=http://localhost
+      - MONGO_URI=mongodb://mongo:27017/yoloquiz
+      - MAILGUN_DOMAIN=yoloquiz.app
+      - AUTH_GOOGLE_CLIENT_ID=changeit
+      - AUTH_GOOGLE_CLIENT_SECRET=changeit
+      - AUTH_FACEBOOK_CLIENT_ID=changeit
+      - AUTH_FACEBOOK_CLIENT_SECRET=changeit
+    ports:
+      - 80:80
 
 volumes:
   mongo-data:
+  yoloquiz-data:

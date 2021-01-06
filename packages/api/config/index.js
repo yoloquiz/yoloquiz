@@ -1,8 +1,9 @@
 import 'dotenv/config.js';
 
 export default {
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
   appUrl: process.env.APP_URL || 'http://localhost:8080',
+  apiUrl: process.env.API_URL || process.env.APP_URL || 'http://localhost:3000',
+  appListenIp: process.env.APP_LISTEN_IP || '0.0.0.0',
   secret: process.env.SECRET || '9lzytxj5w91i9279czk15qovs5d76fuufprx4y5h2b5he9tb',
   port: process.env.PORT || 3000,
   auth: {

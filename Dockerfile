@@ -12,17 +12,18 @@ COPY ./packages/app packages/app
 
 RUN yarn workspace app run build
 
-FROM nginx:latest as production-app
+FROM node:15
 
-WORKDIR /app
-
-COPY --from=build-stage /app/packages/app/dist /app
+RUN apt-get update && apt-get install -y \
+    nginx \
+  && rm -rf /var/lib/apt/lists/* \
+  && rm /var/log/nginx/* \
+  && ln -s /dev/stdout /var/log/nginx/access.log \
+  && ln -s /dev/stderr /var/log/nginx/error.log
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-FROM node:15 as production-api
-
-WORKDIR /api
+WORKDIR /app
 
 COPY package.json .
 COPY yarn.lock .
@@ -30,6 +31,13 @@ COPY packages/api/package.json packages/api/
 
 RUN yarn workspace api install --pure-lockfile --non-interactive --production
 
+COPY --from=build-stage /app/packages/app/dist packages/app
 COPY ./packages/api packages/api
 
-CMD [ "yarn", "workspace", "api", "run", "start" ]
+COPY ./docker-entrypoint.sh /usr/local/bin/
+
+EXPOSE 80
+
+VOLUME ["/app/packages/api/uploads"]
+
+CMD [ "yarn", "start" ]
