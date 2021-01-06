@@ -9,6 +9,7 @@ import fastifySecureSession from 'fastify-secure-session';
 import fastifyWebsocket from 'fastify-websocket';
 
 import config from './config/index.js';
+import logger from './logger/index.js';
 import mongoose from './plugins/mongoose.js';
 import passport from './plugins/passport.js';
 import routes from './routes/index.js';
@@ -22,7 +23,7 @@ function websocketHandler(conn) {
 
 async function start() {
   const app = fastify({
-    logger: true,
+    logger,
   });
 
   try {
@@ -52,7 +53,7 @@ async function start() {
     app.register(coreRoutes);
     app.register(routes, { prefix: '/api' });
 
-    await app.listen(config.port, '0.0.0.0');
+    app.listen(config.port, config.appListenIp);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
